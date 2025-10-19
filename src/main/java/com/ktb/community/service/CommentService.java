@@ -88,6 +88,8 @@ public class CommentService {
                         .profileImageKey(user.getProfileImageKey())
                         .build())
                 .content(comment.getContent())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
                 .build();
     }
 

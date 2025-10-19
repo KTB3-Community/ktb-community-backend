@@ -2,12 +2,8 @@ package com.ktb.community.controller;
 
 import com.ktb.community.common.dto.DataResponseDto;
 import com.ktb.community.common.enums.Code;
-import com.ktb.community.dto.CreateUserRequestDto;
-import com.ktb.community.dto.CreateUserResponseDto;
 import com.ktb.community.dto.LoginRequestDto;
 import com.ktb.community.dto.LoginResponseDto;
-import com.ktb.community.service.TokenService;
-import com.ktb.community.service.UserService;
 import com.ktb.community.service.AuthService;
 import com.ktb.community.util.authorization.Authorization;
 import lombok.RequiredArgsConstructor;
