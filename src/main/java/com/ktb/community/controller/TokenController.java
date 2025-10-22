@@ -18,7 +18,7 @@ public class TokenController {
 
     @PostMapping("/refresh")
     public DataResponseDto<TokenRefreshResponseDto> refreshAccessToken(@RequestBody TokenRefreshRequestDto tokenRefreshRequestDto) {
-        TokenRefreshResponseDto tokenRefreshResponseDto = tokenService.refreshTokens(tokenRefreshRequestDto);
+        TokenRefreshResponseDto tokenRefreshResponseDto = tokenService.refreshAccessTokenAndRefreshToken(tokenRefreshRequestDto);
         return new DataResponseDto<>(Code.OK, "토큰이 성공적으로 갱신되었습니다.", tokenRefreshResponseDto);
     }
 }
