@@ -3,6 +3,7 @@ package com.ktb.community.service;
 import com.ktb.community.domain.*;
 import com.ktb.community.dto.CreateCommentLikeResponseDto;
 import com.ktb.community.dto.CreatePostLikeResponseDto;
+import com.ktb.community.mapper.LikeMapper;
 import com.ktb.community.repository.CommentLikeRepository;
 import com.ktb.community.repository.CommentRepository;
 import com.ktb.community.repository.PostLikeRepository;
@@ -19,6 +20,7 @@ public class LikeService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
+    private final LikeMapper likeMapper;
 
     public CreatePostLikeResponseDto createPostLike(Long userId, Long postId) {
 
@@ -26,13 +28,9 @@ public class LikeService {
                 PostLike.createPostLike(userId, postId));
 
         Post post = postRepository.findById(postId);
-        post.increaseLikeCount();
+        postRepository.save(post.increaseLikeCount());
 
-        return CreatePostLikeResponseDto.builder()
-                .postLikeId(postLike.getId())
-                .createdAt(postLike.getCreatedAt())
-                .updatedAt(postLike.getUpdatedAt())
-                .build();
+        return likeMapper.mapToCreatePostLikeResponseDto(postLike, post);
 
     }
 
@@ -43,13 +41,9 @@ public class LikeService {
         CommentLike commentLike = commentLikeRepository.save(
                 CommentLike.createCommentLike(userId, commentId));
 
-        comment.increaseLikeCount();
+        commentRepository.save(comment.increaseLikeCount());
 
-        return CreateCommentLikeResponseDto.builder()
-                .commentLikeId(comment.getId())
-                .createdAt(commentLike.getCreatedAt())
-                .updatedAt(commentLike.getUpdatedAt())
-                .build();
+        return likeMapper.mapToCreateCommentLikeResponseDto(commentLike, comment);
 
     }
 
@@ -59,17 +53,17 @@ public class LikeService {
         postLikeRepository.delete(postLike.getId());
 
         Post post = postRepository.findById(postId);
-        post.decreaseLikeCount();
+        postRepository.save(post.decreaseLikeCount());
 
     }
 
     public void deleteCommentLike(Long userId, Long commentId) {
 
         CommentLike commentLike = commentLikeRepository.findByUserIdAndCommentId(userId, commentId);
-        postLikeRepository.delete(commentLike.getId());
+        commentLikeRepository.delete(userId, commentLike.getId());
 
         Comment comment = commentRepository.findById(commentId);
-        comment.decreaseLikeCount();
+        commentRepository.save(comment.decreaseLikeCount());
 
     }
 }

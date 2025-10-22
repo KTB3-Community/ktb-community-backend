@@ -2,6 +2,7 @@ package com.ktb.community.service;
 
 import com.ktb.community.dto.UploadImageRequestDto;
 import com.ktb.community.dto.UploadImageResponseDto;
+import com.ktb.community.mapper.ImageMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class ImageService {
 
     private final S3Presigner s3Presigner;
     private final S3Client s3Client;
+    private final ImageMapper imageMapper;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -46,15 +48,12 @@ public class ImageService {
                 .putObjectRequest(objectRequest)
                 .build();
 
-        URL uploadUrl = s3Presigner.presignPutObject(presignRequest).url();
+        URL s3UploadUrl = s3Presigner.presignPutObject(presignRequest).url();
 
-        return UploadImageResponseDto.builder()
-                .s3UploadUrl(uploadUrl.toString())
-                .imageKey(key)
-                .build();
+        return imageMapper.mapToUploadImageResponseDto(s3UploadUrl, key);
     }
 
-    // DB에 저장된 프로필 이미지 Key 값을 기반으로 url 생성, 주로 프로필 이미지 GET 하는 경우에 사용
+    // DB에 저장된 이미지 Key 값을 기반으로 url 생성, 주로 프로필 이미지, 게시물 이미지 GET 하는 경우에 사용
     public String generatePresignedUrlWithKey(String key, Duration duration) {
         if (key == null || key.isEmpty()) return null;
 

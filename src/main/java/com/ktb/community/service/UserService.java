@@ -5,6 +5,7 @@ import com.ktb.community.common.exception.GeneralException;
 import com.ktb.community.domain.User;
 import com.ktb.community.domain.enums.Role;
 import com.ktb.community.dto.*;
+import com.ktb.community.mapper.UserMapper;
 import com.ktb.community.repository.UserRepository;
 import com.ktb.community.util.password.PasswordUtils;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ImageService imageService;
+    private final UserMapper userMapper;
 
     public CreateUserResponseDto createUser(CreateUserRequestDto createUserRequestBody) {
 
@@ -37,18 +39,7 @@ public class UserService {
 
         User user = userRepository.save(User.createUser(email, nickname, password, profileImageKey, Role.USER));
 
-        System.out.println(user.getId());
-        System.out.println(user.getEmail());
-        System.out.println(user.getNickname());
-        System.out.println(user.getPassword());
-        System.out.println(user.getProfileImageKey());
-
-        return CreateUserResponseDto.builder()
-                .userId(user.getId())
-                .role(user.getRole())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build();
+        return userMapper.mapToCreateUserResponseDto(user);
     }
 
     public UpdateUserInfoResponseDto updateUserInfo(Long userId, UpdateUserInfoRequestDto updateUserInfoRequestDto) {
@@ -61,21 +52,14 @@ public class UserService {
 
         }
 
-        user.updateProfileInfo(updatedNickname);
-        userRepository.save(user);
+        userRepository.save(user.updateProfileInfo(updatedNickname));
 
         String profileImageUrl = imageService.generatePresignedUrlWithKey(user.getProfileImageKey(), Duration.ofHours(1));
 
-        return UpdateUserInfoResponseDto.builder()
-                .userId(userId)
-                .nickname(user.getNickname())
-                .profileImageUrl(profileImageUrl)
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build();
+        return userMapper.mapToUpdateUserInfoResponseDto(userId, user, profileImageUrl);
     }
 
-    public UpdateUserInfoResponseDto updateUserPassword(Long userId, UpdateUserPasswordRequestDto updateUserPasswordRequestDto) {
+    public void updateUserPassword(Long userId, UpdateUserPasswordRequestDto updateUserPasswordRequestDto) {
 
         User user = userRepository.findById(userId);
 
@@ -87,18 +71,7 @@ public class UserService {
             throw new GeneralException(Code.CONFLICT);
         }
 
-        user.updatePassword(updatedHashPassword);
-        userRepository.save(user);
-
-        String profileImageUrl = imageService.generatePresignedUrlWithKey(user.getProfileImageKey(), Duration.ofHours(1));
-
-        return UpdateUserInfoResponseDto.builder()
-                .userId(userId)
-                .nickname(user.getNickname())
-                .profileImageUrl(profileImageUrl)
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build();
+        userRepository.save(user.updatePassword(updatedHashPassword));
     }
 
     public UpdateUserImageResponseDto updateUserImage(Long userId, UploadImageRequestDto uploadImageRequestDto) {
@@ -112,15 +85,9 @@ public class UserService {
         UploadImageResponseDto uploadImageResponseDto = imageService.generatePresignedUrl(uploadImageRequestDto);
         String profileImageUrl = uploadImageResponseDto.getS3UploadUrl();
 
-        user.updateProfileImage(profileImageUrl);
+        userRepository.save(user.updateProfileImage(profileImageUrl));
 
-        userRepository.save(user);
-
-        return UpdateUserImageResponseDto.builder()
-                .profileImageUrl(profileImageUrl)
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build();
+        return userMapper.mapToUpdateUserImageResponseDto(user, profileImageUrl);
     }
 
     public void deleteUserImage(Long userId) {
@@ -131,9 +98,7 @@ public class UserService {
             imageService.deleteImage(user.getProfileImageKey());
         }
 
-        user.deleteProfileImage();
-
-        System.out.println(user.getProfileImageKey());
+        userRepository.save(user.deleteProfileImage());
     }
 
     public void deleteUser(Long userId) {

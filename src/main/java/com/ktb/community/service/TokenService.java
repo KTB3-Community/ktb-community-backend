@@ -4,7 +4,9 @@ import com.ktb.community.common.enums.Code;
 import com.ktb.community.common.exception.GeneralException;
 import com.ktb.community.dto.TokenRefreshRequestDto;
 import com.ktb.community.dto.TokenRefreshResponseDto;
+import com.ktb.community.mapper.TokenMapper;
 import com.ktb.community.repository.TokenRepository;
+import com.ktb.community.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -24,6 +26,8 @@ import java.util.Date;
 @Transactional
 public class TokenService {
 
+    private final UserRepository userRepository;
+    private final TokenMapper tokenMapper;
     @Value("${jwt.secret}")
     private String secretKey;
 
@@ -55,7 +59,7 @@ public class TokenService {
         return refreshToken;
     }
 
-    public TokenRefreshResponseDto refreshTokens(TokenRefreshRequestDto tokenRefreshRequestDto) {
+    public TokenRefreshResponseDto refreshAccessTokenAndRefreshToken(TokenRefreshRequestDto tokenRefreshRequestDto) {
         String refreshToken = tokenRefreshRequestDto.getRefreshToken();
 
         Claims claims = parseToken(refreshToken);
@@ -71,10 +75,7 @@ public class TokenService {
 
         tokenRepository.delete(userId);
 
-        return TokenRefreshResponseDto.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
-                .build();
+        return tokenMapper.mapToTokenRefreshResponseDto(newAccessToken, newRefreshToken);
     }
 
     public Claims parseToken(String refreshToken) {
