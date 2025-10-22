@@ -16,6 +16,20 @@ public class CommentMapper {
 
     private final UserRepository userRepository;
 
+    public CommentInfoDto mapToCommentInfoDto(Comment comment, User user) {
+        return CommentInfoDto.builder()
+                .commentId(comment.getId())
+                .writer(UserInfoDto.builder()
+                        .userId(user.getId())
+                        .nickname(user.getNickname())
+                        .profileImageKey(user.getProfileImageKey())
+                        .build())
+                .content(comment.getContent())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
+                .build();
+    }
+
     public List<CommentInfoDto> mapToCommentInfoDtoList(List<Comment> comments) {
         return comments.stream()
                 .map(comment -> {
