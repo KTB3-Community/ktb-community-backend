@@ -30,7 +30,9 @@ public class PostService {
 
     public CreatePostResponseDto createPost(User user, PostRequestDto postRequestDto) {
 
-        PostCreationStrategy postCreationStrategy = postCreationStrategies.get(determineStrategy(user, postRequestDto.getPostType()));
+        PostCreationStrategy postCreationStrategy = postCreationStrategies.get(
+                determineStrategy(user, postRequestDto.getPostType())
+        );
 
         String title = postRequestDto.getTitle();
         String content = postRequestDto.getContent();

@@ -2,7 +2,6 @@ package com.ktb.community.strategy.post;
 
 import com.ktb.community.domain.Post;
 import com.ktb.community.domain.User;
-import com.ktb.community.domain.enums.PostType;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
