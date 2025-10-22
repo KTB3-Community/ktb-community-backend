@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class CreatePostLikeResponseDto {
 
     private Long postLikeId;
+    private Long postId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private LocalDateTime createdAt;
