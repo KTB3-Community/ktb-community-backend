@@ -53,23 +53,31 @@ public class User {
     }
 
     // email이 id 역할이라 변경 안되게 함
-    public void updateProfileInfo(String nickname) {
-        this.nickname = nickname;
-        this.updatedAt = LocalDateTime.now();
+    public User updateProfileInfo(String nickname) {
+        return this.toBuilder()
+                .nickname(nickname)
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
-    public void updatePassword(String password) {
-        this.password = password;
-        this.updatedAt = LocalDateTime.now();
+    public User updatePassword(String password) {
+        return this.toBuilder()
+                .password(password)
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
-    public void updateProfileImage(String profileImageKey) {
-        this.profileImageKey = profileImageKey;
-        this.updatedAt = LocalDateTime.now();
+    public User updateProfileImage(String profileImageKey) {
+        return this.toBuilder()
+                .profileImageKey(profileImageKey)
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
-    public void deleteProfileImage() {
-        this.profileImageKey = null;
+    public User deleteProfileImage() {
+        return this.toBuilder()
+                .profileImageKey(null)
+                .build();
     }
 
 }
