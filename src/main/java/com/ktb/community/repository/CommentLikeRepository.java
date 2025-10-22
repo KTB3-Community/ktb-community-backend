@@ -8,5 +8,5 @@ public interface CommentLikeRepository {
 
     CommentLike save(CommentLike commentLike);
     CommentLike findByUserIdAndCommentId(Long userId, Long postId);
-    void delete(Long commentLikeId);
+    void delete(Long userId, Long commentId);
 }

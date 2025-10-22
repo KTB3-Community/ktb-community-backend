@@ -20,7 +20,7 @@ public class InMemoryPostRepository implements PostRepository{
 
 
     @Override
-    public synchronized Post save(Post post) {
+    public Post save(Post post) {
         if (post.getId() == null || post.getId() == 0L) {
             post = post.withId(idGenerator.next("post"));
         }
