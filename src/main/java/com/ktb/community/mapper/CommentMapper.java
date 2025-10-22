@@ -16,7 +16,7 @@ public class CommentMapper {
 
     private final UserRepository userRepository;
 
-    public List<CommentInfoDto> toCommentInfoDtoList(List<Comment> comments) {
+    public List<CommentInfoDto> mapToCommentInfoDtoList(List<Comment> comments) {
         return comments.stream()
                 .map(comment -> {
                     User user = userRepository.findById(comment.getUserId());
