@@ -1,5 +1,6 @@
 package com.ktb.community.domain;
 
+import com.ktb.community.domain.enums.PostType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,11 +19,13 @@ public class Post {
     private int likeCount;
     private int commentCount;
     private int viewCount;
+    private PostType postType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @Builder(toBuilder = true)
-    public Post(Long id, Long userId, String title, String content, String postImageKey, int likeCount, int commentCount, int viewCount,
+    public Post(Long id, Long userId, String title, String content, String postImageKey,
+                int likeCount, int commentCount, int viewCount, PostType postType,
                 LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
@@ -32,9 +35,11 @@ public class Post {
         this.likeCount = likeCount;
         this.commentCount = commentCount;
         this.viewCount = viewCount;
+        this.postType = postType;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
 
     public Post withId(long newId) {
         return this.toBuilder()
@@ -42,7 +47,7 @@ public class Post {
                 .build();
     }
 
-    public static Post createPost(Long userId, String title, String content, String postImageKey) {
+    public static Post createPost(Long userId, String title, String content, String postImageKey, PostType postType) {
         LocalDateTime now = LocalDateTime.now();
         return Post.builder()
                 .userId(userId)
@@ -52,36 +57,49 @@ public class Post {
                 .likeCount(0)
                 .commentCount(0)
                 .viewCount(0)
+                .postType(postType)
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
     }
 
-    public void updatePostImage(String postImageKey) {
-        this.postImageKey = postImageKey;
-        this.updatedAt = LocalDateTime.now();
+    public Post updatePostImage(String postImageKey) {
+        return toBuilder()
+                .postImageKey(postImageKey)
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
-    public void deletePostImage() {
-        this.postImageKey = null;
+    public Post deletePostImage() {
+        return toBuilder()
+                .postImageKey(null)
+                .build();
     }
 
-    public void updatePost(String title, String content, String postImageKey) {
-        this.title = title;
-        this.content = content;
-        this.postImageKey = postImageKey;
-        this.updatedAt = LocalDateTime.now();
+    public Post updatePost(String title, String content, String postImageKey) {
+        return toBuilder()
+                .title(title)
+                .content(content)
+                .postImageKey(postImageKey)
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
-    public void increaseLikeCount() {
-        this.likeCount++;
-        this.updatedAt = LocalDateTime.now();
+    public Post increaseLikeCount() {
+        return toBuilder()
+                .likeCount(likeCount+1)
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
-    public void decreaseLikeCount() {
+    public Post decreaseLikeCount() {
+        Post post = null;
         if (this.likeCount > 0) {
-            this.likeCount--;
-            this.updatedAt = LocalDateTime.now();
+            post = toBuilder()
+                    .likeCount(likeCount-1)
+                    .updatedAt(LocalDateTime.now())
+                    .build();
         }
+        return post;
     }
 }
