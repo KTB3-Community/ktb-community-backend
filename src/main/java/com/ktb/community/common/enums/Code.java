@@ -41,7 +41,7 @@ public enum Code {
     // 인증,인가 오류 (EUxxx)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "EU001", "인증되지 않은 사용자입니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED.value(), "EU002", "유효하지 않은 토큰입니다."),
-    FORBIDDEN(HttpStatus.FORBIDDEN.value(), "EU003", "접근이 허용되지 않았습니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN.value(), "EU003", "접근이 허용되지 않습니다."),
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST.value(), "EU004", "존재하지 않는 회원입니다."),
 
     // 비즈니스 오류 (EBxxx)

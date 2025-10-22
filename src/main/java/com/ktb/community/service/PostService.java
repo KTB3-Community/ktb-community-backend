@@ -36,10 +36,8 @@ public class PostService {
         String content = postRequestDto.getContent();
         String postImageKey = postRequestDto.getPostImageKey();
 
-        Long userId = user.getId();
-
         Post post = postRepository.save(
-                postCreationStrategy.createPost(userId, title, content, postImageKey, PostType.BASIC)
+                postCreationStrategy.createPost(user, title, content, postImageKey)
         );
 
         UserInfoDto userInfoDto = UserInfoDto.builder()
@@ -129,6 +127,7 @@ public class PostService {
     }
 
     private String determineStrategy(User user, PostType postType) {
+        // 관리자는 공지글만 쓸 수 있게 할 것이므로
         if (user.getRole().equals(Role.ADMIN) && postType.equals(PostType.NOTICE)) return "noticePostCreationStrategy";
         return "basicPostCreationStrategy";
     }

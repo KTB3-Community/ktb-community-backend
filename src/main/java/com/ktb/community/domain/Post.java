@@ -47,7 +47,7 @@ public class Post {
                 .build();
     }
 
-    public static Post createPost(Long userId, String title, String content, String postImageKey, PostType postType) {
+    public static Post createPost(Long userId, String title, String content, String postImageKey) {
         LocalDateTime now = LocalDateTime.now();
         return Post.builder()
                 .userId(userId)
@@ -57,7 +57,7 @@ public class Post {
                 .likeCount(0)
                 .commentCount(0)
                 .viewCount(0)
-                .postType(postType)
+                .postType(PostType.BASIC)
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
