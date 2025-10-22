@@ -2,7 +2,6 @@ package com.ktb.community.service;
 
 import com.ktb.community.domain.Comment;
 import com.ktb.community.domain.User;
-import com.ktb.community.domain.enums.CommentType;
 import com.ktb.community.dto.CommentInfoDto;
 import com.ktb.community.dto.CommentRequestDto;
 import com.ktb.community.dto.GetCommentListResponseDto;
@@ -10,7 +9,6 @@ import com.ktb.community.dto.UserInfoDto;
 import com.ktb.community.mapper.CommentMapper;
 import com.ktb.community.repository.CommentRepository;
 import com.ktb.community.repository.UserRepository;
-import com.ktb.community.strategy.comment.CommentCreationStrategy;
 import com.ktb.community.util.cursor.CursorEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -29,15 +26,12 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final CommentMapper commentMapper;
-    private final Map<String, CommentCreationStrategy> commentCreationStrategies;
 
 
     public CommentInfoDto createComment(User user, Long postId, CommentRequestDto commentRequestDto) {
 
-        CommentCreationStrategy commentCreationStrategy = commentCreationStrategies.get(determineCommentStrategy(commentRequestDto.getCommentType()));
-
         Comment comment = commentRepository.save(
-                commentCreationStrategy.createComment(user.getId(), postId, commentRequestDto.getContent(), CommentType.BASIC)
+                Comment.createComment(user.getId(), postId, commentRequestDto.getContent())
         );
 
         return commentMapper.mapToCommentInfoDto(comment, user);
@@ -90,13 +84,6 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId);
         commentRepository.delete(comment.getId());
 
-    }
-
-
-    private String determineCommentStrategy(CommentType commentType) {
-        if (commentType.equals(CommentType.PRIVATE)) return "privateCommentCreationStrategy";
-        else if (commentType.equals(CommentType.REPLY)) return "replyCommentCreationStrategy";
-        return "basicCommentCreationStrategy";
     }
 
 }
