@@ -1,4 +1,4 @@
-package com.ktb.community.common.aws.config;
+package com.ktb.community.config.aws;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
