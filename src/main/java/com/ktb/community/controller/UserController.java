@@ -30,10 +30,10 @@ public class UserController {
     }
 
     @PatchMapping("/users/{userId}/password")
-    public DataResponseDto<UpdateUserInfoResponseDto> updateUserPassword(@PathVariable Long userId,
-                                                                         @RequestBody UpdateUserPasswordRequestDto updateUserPasswordRequestDto) {
-        UpdateUserInfoResponseDto updateUserInfoResponseDto = userService.updateUserPassword(userId, updateUserPasswordRequestDto);
-        return new DataResponseDto<>(Code.OK, "회원 정보 수정이 성공적으로 완료되었습니다.", updateUserInfoResponseDto);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateUserPassword(@PathVariable Long userId,
+                                   @RequestBody UpdateUserPasswordRequestDto updateUserPasswordRequestDto) {
+        userService.updateUserPassword(userId, updateUserPasswordRequestDto);
     }
 
     @PutMapping("/users/{userId}/image")
@@ -52,6 +52,6 @@ public class UserController {
     @DeleteMapping("/users/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@RequestHeader("Authorization") String authorizationHeader) {
-        userService.deleteUser(authorization.extractUserInfoFromToken(authorizationHeader));
+        userService.deleteUser(authorization.extractUserIdFromHeader(authorizationHeader));
     }
 }
