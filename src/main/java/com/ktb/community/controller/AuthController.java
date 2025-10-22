@@ -26,7 +26,7 @@ public class AuthController {
     @DeleteMapping("/sessions/current")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(@RequestHeader("Authorization") String authorizationHeader) {
-        authService.logout(authorization.extractUserInfoFromToken(authorizationHeader));
+        authService.logout(authorization.extractUserIdFromHeader(authorizationHeader));
     }
 
 }

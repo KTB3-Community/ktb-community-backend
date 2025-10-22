@@ -5,6 +5,7 @@ import com.ktb.community.common.enums.Code;
 import com.ktb.community.dto.*;
 import com.ktb.community.service.PostService;
 import com.ktb.community.service.TokenService;
+import com.ktb.community.util.authorization.Authorization;
 import com.ktb.community.util.cursor.CursorEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,14 +18,12 @@ import java.time.LocalDateTime;
 public class PostController {
 
     private final PostService postService;
-    private final TokenService tokenService;
+    private final Authorization authorization;
 
     @PostMapping("/posts")
     public DataResponseDto<CreatePostResponseDto> createPost(@RequestHeader("Authorization") String authorizationHeader,
                                                              @RequestBody PostRequestDto createPostRequestDto) {
-        String token = authorizationHeader.replace("Bearer ", "");
-        Long userId = tokenService.extractUserId(token);
-        CreatePostResponseDto createPostResponseDto = postService.createPost(userId, createPostRequestDto);
+        CreatePostResponseDto createPostResponseDto = postService.createPost(authorization.extractUserFromHeader(authorizationHeader), createPostRequestDto);
         return new DataResponseDto<>(Code.OK, "게시물 생성이 성공적으로 완료되었습니다.", createPostResponseDto);
     }
 

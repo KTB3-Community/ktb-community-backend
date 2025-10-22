@@ -20,14 +20,14 @@ public class LikeController {
     @PostMapping("/posts/{postId}/likes")
     public DataResponseDto<CreatePostLikeResponseDto> createPostLike(@RequestHeader("Authorization") String authorizationHeader,
                                                                      @PathVariable Long postId) {
-        CreatePostLikeResponseDto createPostLikeResponseDto = likeService.createPostLike(authorization.extractUserInfoFromToken(authorizationHeader), postId);
+        CreatePostLikeResponseDto createPostLikeResponseDto = likeService.createPostLike(authorization.extractUserIdFromHeader(authorizationHeader), postId);
         return new DataResponseDto<>(Code.OK, "게시물 좋아요 처리가 성공적으로 완료되었습니다.", createPostLikeResponseDto);
     }
 
     @PostMapping("/comments/{commentId}/likes")
     public DataResponseDto<CreateCommentLikeResponseDto> createCommentLike(@RequestHeader("Authorization") String authorizationHeader,
                                                                            @PathVariable Long commentId) {
-        CreateCommentLikeResponseDto createCommentLikeResponseDto = likeService.createCommentLike(authorization.extractUserInfoFromToken(authorizationHeader), commentId);
+        CreateCommentLikeResponseDto createCommentLikeResponseDto = likeService.createCommentLike(authorization.extractUserIdFromHeader(authorizationHeader), commentId);
         return new DataResponseDto<>(Code.OK, "댓글 좋아요 처리가 성공적으로 완료되었습니다.", createCommentLikeResponseDto);
     }
 
@@ -35,13 +35,13 @@ public class LikeController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePostLike(@RequestHeader("Authorization") String authorizationHeader,
                                @PathVariable Long postId) {
-        likeService.deletePostLike(authorization.extractUserInfoFromToken(authorizationHeader), postId);
+        likeService.deletePostLike(authorization.extractUserIdFromHeader(authorizationHeader), postId);
     }
 
     @DeleteMapping("/comments/{commentId}/likes")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCommentLike(@RequestHeader("Authorization") String authorizationHeader,
                                   @PathVariable Long commentId) {
-        likeService.deleteCommentLike(authorization.extractUserInfoFromToken(authorizationHeader), commentId);
+        likeService.deleteCommentLike(authorization.extractUserIdFromHeader(authorizationHeader), commentId);
     }
 }

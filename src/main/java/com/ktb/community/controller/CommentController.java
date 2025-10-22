@@ -25,7 +25,7 @@ public class CommentController {
     public DataResponseDto<CommentInfoDto> createComment(@RequestHeader("Authorization") String authorizationHeader,
                                                          @PathVariable Long postId,
                                                          @RequestBody CommentRequestDto commentRequestDto) {
-        CommentInfoDto commentInfoDto = commentService.createComment(authorization.extractUserInfoFromToken(authorizationHeader), postId, commentRequestDto);
+        CommentInfoDto commentInfoDto = commentService.createComment(authorization.extractUserFromHeader(authorizationHeader), postId, commentRequestDto);
         return new DataResponseDto<>(Code.OK, "댓글 생성이 성공적으로 완료되었습니다.", commentInfoDto);
     }
 
@@ -42,7 +42,7 @@ public class CommentController {
     public DataResponseDto<CommentInfoDto> updateComment(@RequestHeader("Authorization") String authorizationHeader,
                                                          @PathVariable Long commentId,
                                                          @RequestBody CommentRequestDto commentRequestDto) {
-        CommentInfoDto commentInfoDto = commentService.updateComment(authorization.extractUserInfoFromToken(authorizationHeader), commentId, commentRequestDto);
+        CommentInfoDto commentInfoDto = commentService.updateComment(authorization.extractUserIdFromHeader(authorizationHeader), commentId, commentRequestDto);
         return new DataResponseDto<>(Code.OK, "댓글 수정이 성공적으로 완료되었습니다.", commentInfoDto);
     }
 
