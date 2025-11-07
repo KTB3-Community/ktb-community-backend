@@ -1,18 +1,24 @@
 package com.ktb.community.domain;
 
+import jakarta.persistence.*;
+
 import com.ktb.community.domain.enums.PostType;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "post")
 @Getter
-@NoArgsConstructor
-public class Post {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Post extends BaseTimeEntity{
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long userId;
     private String title;
     private String content;
     private String postImageKey;
@@ -20,15 +26,16 @@ public class Post {
     private int commentCount;
     private int viewCount;
     private PostType postType;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
+    private boolean isDeleted;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Builder(toBuilder = true)
-    public Post(Long id, Long userId, String title, String content, String postImageKey,
-                int likeCount, int commentCount, int viewCount, PostType postType,
-                LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.userId = userId;
+    public Post(String title, String content, String postImageKey, int likeCount, int commentCount, int viewCount,
+                PostType postType, LocalDateTime deletedAt, boolean isDeleted, User user) {
         this.title = title;
         this.content = content;
         this.postImageKey = postImageKey;
@@ -36,21 +43,14 @@ public class Post {
         this.commentCount = commentCount;
         this.viewCount = viewCount;
         this.postType = postType;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.deletedAt = deletedAt;
+        this.isDeleted = isDeleted;
+        this.user = user;
     }
 
-
-    public Post withId(long newId) {
-        return this.toBuilder()
-                .id(newId)
-                .build();
-    }
-
-    public static Post createPost(Long userId, String title, String content, String postImageKey) {
-        LocalDateTime now = LocalDateTime.now();
+    public static Post createPost(User user, String title, String content, String postImageKey) {
         return Post.builder()
-                .userId(userId)
+                .user(user)
                 .title(title)
                 .content(content)
                 .postImageKey(postImageKey)
@@ -58,21 +58,8 @@ public class Post {
                 .commentCount(0)
                 .viewCount(0)
                 .postType(PostType.BASIC)
-                .createdAt(now)
-                .updatedAt(now)
-                .build();
-    }
-
-    public Post updatePostImage(String postImageKey) {
-        return toBuilder()
-                .postImageKey(postImageKey)
-                .updatedAt(LocalDateTime.now())
-                .build();
-    }
-
-    public Post deletePostImage() {
-        return toBuilder()
-                .postImageKey(null)
+                .deletedAt(null)
+                .isDeleted(false)
                 .build();
     }
 
@@ -81,25 +68,27 @@ public class Post {
                 .title(title)
                 .content(content)
                 .postImageKey(postImageKey)
-                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
     public Post increaseLikeCount() {
         return toBuilder()
                 .likeCount(likeCount+1)
-                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
     public Post decreaseLikeCount() {
-        Post post = null;
-        if (this.likeCount > 0) {
-            post = toBuilder()
-                    .likeCount(likeCount-1)
-                    .updatedAt(LocalDateTime.now())
-                    .build();
-        }
-        return post;
+        int updatedCount = Math.max(0, this.likeCount - 1);
+        return toBuilder()
+                .likeCount(updatedCount)
+                .build();
     }
+
 }
+
+
+//    public Post withId(long newId) {
+//        return this.toBuilder()
+//                .id(newId)
+//                .build();
+//    }

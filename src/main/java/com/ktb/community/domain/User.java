@@ -1,54 +1,60 @@
 package com.ktb.community.domain;
 
 import com.ktb.community.domain.enums.Role;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "user")
 @Getter
-@NoArgsConstructor
-public class User {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class User extends BaseTimeEntity {
 
-    private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true)
     private String email;
     private String nickname;
     private String password;
     private String profileImageKey;
     private Role role;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
+    private boolean isDeleted;
 
     @Builder(toBuilder = true)
-    public User(long id, String email, String nickname, String password, String profileImageKey, Role role,
-                LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
+    protected User(String email, String nickname, String password, String profileImageKey, Role role,
+                LocalDateTime deletedAt, boolean isDeleted) {
         this.email = email;
         this.nickname = nickname;
         this.password = password;
         this.profileImageKey = profileImageKey;
         this.role = role;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.deletedAt = deletedAt;
+        this.isDeleted = isDeleted;
     }
 
-    public User withId(long newId) {
-        return this.toBuilder()
-                .id(newId)
-                .build();
-    }
+//    public User withId(Long newId) {
+//        return this.toBuilder()
+//                .id(newId)
+//                .build();
+//    }
 
     public static User createUser(String email, String nickname, String password, String profileImageKey, Role role) {
-        LocalDateTime now = LocalDateTime.now();
         return User.builder()
                 .email(email)
                 .nickname(nickname)
                 .password(password)
                 .profileImageKey(profileImageKey)
                 .role(role)
-                .createdAt(now)
-                .updatedAt(now)
+                .deletedAt(null)
+                .isDeleted(false)
                 .build();
     }
 
@@ -56,27 +62,26 @@ public class User {
     public User updateProfileInfo(String nickname) {
         return this.toBuilder()
                 .nickname(nickname)
-                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
     public User updatePassword(String password) {
         return this.toBuilder()
                 .password(password)
-                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
     public User updateProfileImage(String profileImageKey) {
         return this.toBuilder()
                 .profileImageKey(profileImageKey)
-                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
     public User deleteProfileImage() {
         return this.toBuilder()
                 .profileImageKey(null)
+                .isDeleted(true)
+                .deletedAt(LocalDateTime.now())
                 .build();
     }
 

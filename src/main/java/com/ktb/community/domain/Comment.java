@@ -1,75 +1,72 @@
 package com.ktb.community.domain;
 
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
+@Entity
+@Table(name = "comment")
 @Getter
-@NoArgsConstructor
-public class Comment {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Comment extends BaseTimeEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long userId;
-    private Long postId;
     private String content;
     private int likeCount;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     @Builder(toBuilder = true)
-    public Comment(Long id, Long userId, Long postId, String content, int likeCount,
-                   LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Comment(Long id, String content, int likeCount, User user, Post post) {
         this.id = id;
-        this.userId = userId;
-        this.postId = postId;
         this.content = content;
         this.likeCount = likeCount;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.user = user;
+        this.post = post;
     }
 
-    public Comment withId(long newId) {
-        return this.toBuilder()
-                .id(newId)
-                .build();
-    }
-
-    public static Comment createComment(Long userId, Long postId, String content) {
-        LocalDateTime now = LocalDateTime.now();
+    public static Comment createComment(String content, Post post, User user) {
         return Comment.builder()
-                .userId(userId)
-                .postId(postId)
                 .content(content)
                 .likeCount(0)
-                .createdAt(now)
-                .updatedAt(now)
+                .post(post)
+                .user(user)
                 .build();
     }
 
     public Comment updateComment(String content) {
         return toBuilder()
                 .content(content)
-                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
     public Comment increaseLikeCount() {
         return toBuilder()
                 .likeCount(likeCount+1)
-                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
     public Comment decreaseLikeCount() {
-        Comment comment = null;
-        if (this.likeCount > 0) {
-            comment = toBuilder()
-                    .likeCount(likeCount-1)
-                    .updatedAt(LocalDateTime.now())
-                    .build();
-        }
-        return comment;
+        return toBuilder()
+                .likeCount(Math.max(0, this.likeCount - 1))
+                .build();
     }
+
+
 }
+
+//    public Comment withId(long newId) {
+//        return this.toBuilder()
+//                .id(newId)
+//                .build();
+//    }
