@@ -12,12 +12,17 @@ import org.springframework.stereotype.Component;
 public class NoticePostCreationStrategy implements PostCreationStrategy {
 
     @Override
+    public PostType getPostType() {
+        return PostType.NOTICE;
+    }
+
+    @Override
     public Post createPost(User user, String title, String content, String postImageKey) {
         if (user.getRole() != Role.ADMIN) {
             throw new GeneralException(Code.FORBIDDEN);
         }
 
-        return Post.createPost(user.getId(), title, content, postImageKey)
+        return Post.createPost(user, title, content, postImageKey)
                 .toBuilder()
                 .postType(PostType.NOTICE)
                 .build();

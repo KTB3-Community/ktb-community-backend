@@ -1,12 +1,11 @@
 package com.ktb.community.repository;
 
-import com.ktb.community.domain.CommentLike;
+import com.ktb.community.domain.CommentLikes;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CommentLikeRepository {
+public interface CommentLikeRepository extends JpaRepository<CommentLikes, Long> {
 
-    CommentLike save(CommentLike commentLike);
-    CommentLike findByUserIdAndCommentId(Long userId, Long postId);
-    void delete(Long userId, Long commentId);
+    CommentLikes findByUserIdAndCommentId(Long userId, Long postId);
 }

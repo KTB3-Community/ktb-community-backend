@@ -19,7 +19,6 @@ public class PostImage extends BaseTimeEntity{
     private Long id;
     private String postImageKey;
     private int orderIndex;
-    private LocalDateTime createdAt;
     private LocalDateTime deletedAt;
     private boolean isDeleted;
 
@@ -28,11 +27,10 @@ public class PostImage extends BaseTimeEntity{
     private Post post;
 
     @Builder(toBuilder = true)
-    protected PostImage(String postImageKey, int orderIndex, LocalDateTime createdAt, LocalDateTime deletedAt,
+    protected PostImage(String postImageKey, int orderIndex, LocalDateTime deletedAt,
                      boolean isDeleted, Post post) {
         this.postImageKey = postImageKey;
         this.orderIndex = orderIndex;
-        this.createdAt = createdAt;
         this.deletedAt = deletedAt;
         this.isDeleted = isDeleted;
         this.post = post;

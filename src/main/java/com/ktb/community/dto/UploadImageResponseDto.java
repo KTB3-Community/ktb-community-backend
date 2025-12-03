@@ -7,7 +7,7 @@ import lombok.Getter;
 @Builder
 public class UploadImageResponseDto {
 
-    private String s3UploadUrl;
+    private String presignedImageUrl;
     private String imageKey;
 
 }

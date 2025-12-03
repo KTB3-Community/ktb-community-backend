@@ -4,17 +4,15 @@ import com.ktb.community.domain.Comment;
 import com.ktb.community.domain.User;
 import com.ktb.community.dto.CommentInfoDto;
 import com.ktb.community.dto.UserInfoDto;
-import com.ktb.community.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class CommentMapper {
-
-    private final UserRepository userRepository;
 
     public CommentInfoDto mapToCommentInfoDto(Comment comment, User user) {
         return CommentInfoDto.builder()
@@ -30,10 +28,10 @@ public class CommentMapper {
                 .build();
     }
 
-    public List<CommentInfoDto> mapToCommentInfoDtoList(List<Comment> comments) {
+    public List<CommentInfoDto> mapToCommentInfoDtoList(List<Comment> comments, Map<Long, User> userMap) {
         return comments.stream()
                 .map(comment -> {
-                    User user = userRepository.findById(comment.getUserId());
+                    User user = userMap.get(comment.getUser().getId());
 
                     return CommentInfoDto.builder()
                             .commentId(comment.getId())

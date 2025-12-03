@@ -3,9 +3,9 @@ package com.ktb.community.controller;
 import com.ktb.community.common.dto.DataResponseDto;
 import com.ktb.community.common.enums.Code;
 import com.ktb.community.dto.*;
+import com.ktb.community.service.PostImageService;
 import com.ktb.community.service.PostService;
-import com.ktb.community.service.TokenService;
-import com.ktb.community.util.authorization.Authorization;
+//import com.ktb.community.util.authorization.Authorization;
 import com.ktb.community.util.cursor.CursorEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,12 +18,12 @@ import java.time.LocalDateTime;
 public class PostController {
 
     private final PostService postService;
-    private final Authorization authorization;
+//    private final Authorization authorization;
+    private final PostImageService postImageService;
 
     @PostMapping("/posts")
-    public DataResponseDto<CreatePostResponseDto> createPost(@RequestHeader("Authorization") String authorizationHeader,
-                                                             @RequestBody PostRequestDto createPostRequestDto) {
-        CreatePostResponseDto createPostResponseDto = postService.createPost(authorization.extractUserFromHeader(authorizationHeader), createPostRequestDto);
+    public DataResponseDto<CreatePostResponseDto> createPost(@RequestBody PostRequestDto createPostRequestDto) {
+        CreatePostResponseDto createPostResponseDto = postService.createPost(createPostRequestDto);
         return new DataResponseDto<>(Code.OK, "게시물 생성이 성공적으로 완료되었습니다.", createPostResponseDto);
     }
 
@@ -51,14 +51,14 @@ public class PostController {
     @PutMapping("/posts/{postId}/image")
     public DataResponseDto<UpdatePostImageResponseDto> updatePostImage(@PathVariable Long postId,
                                                                        @RequestBody UploadImageRequestDto uploadImageRequestDto) {
-        UpdatePostImageResponseDto updatePostImageResponseDto = postService.updatePostImage(postId, uploadImageRequestDto);
+        UpdatePostImageResponseDto updatePostImageResponseDto = postImageService.updatePostImage(postId, uploadImageRequestDto);
         return new DataResponseDto<>(Code.OK, "게시물 이미지 변경이 성공적으로 완료되었습니다.", updatePostImageResponseDto);
     }
 
     @DeleteMapping("/posts/{postId}/image")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePostImage(@PathVariable Long postId) {
-        postService.deletePostImage(postId);
+        postImageService.deletePostImage(postId);
     }
 
     @DeleteMapping("/posts/{postId}")

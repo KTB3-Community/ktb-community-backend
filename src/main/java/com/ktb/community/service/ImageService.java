@@ -29,7 +29,7 @@ public class ImageService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    // 클라이언트로부터 파일명, content type 받아서 url 생성
+    // 클라이언트로부터 파일명, content type 받아서 url 생성 => 업로드용 (PUT)
     public UploadImageResponseDto generatePresignedUrl(UploadImageRequestDto uploadImageRequestDto) {
 
         String filename = uploadImageRequestDto.getFileName();
@@ -53,13 +53,13 @@ public class ImageService {
         return imageMapper.mapToUploadImageResponseDto(s3UploadUrl, key);
     }
 
-    // DB에 저장된 이미지 Key 값을 기반으로 url 생성, 주로 프로필 이미지, 게시물 이미지 GET 하는 경우에 사용
-    public String generatePresignedUrlWithKey(String key, Duration duration) {
-        if (key == null || key.isEmpty()) return null;
+    // DB에 저장된 이미지 Key 값을 기반으로 url 생성 => 미리보기 조회용 (GET)
+    public String generatePresignedUrlWithKey(String imageKey, Duration duration) {
+        if (imageKey == null || imageKey.isEmpty()) return null;
 
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucket)
-                .key(key)
+                .key(imageKey)
                 .build();
 
         GetObjectPresignRequest getPresignRequest = GetObjectPresignRequest.builder()
@@ -70,10 +70,10 @@ public class ImageService {
         return s3Presigner.presignGetObject(getPresignRequest).url().toString();
     }
 
-    public void deleteImage(String key) {
+    public void deleteImage(String imageKey) {
         s3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(bucket)
-                .key(key)
+                .key(imageKey)
                 .build());
     }
 

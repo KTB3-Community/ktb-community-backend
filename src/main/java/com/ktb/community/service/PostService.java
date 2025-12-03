@@ -1,14 +1,17 @@
 package com.ktb.community.service;
 
+import com.ktb.community.common.enums.Code;
+import com.ktb.community.common.exception.GeneralException;
 import com.ktb.community.domain.Post;
 import com.ktb.community.domain.User;
-import com.ktb.community.domain.enums.PostType;
-import com.ktb.community.domain.enums.Role;
 import com.ktb.community.dto.*;
 import com.ktb.community.mapper.PostMapper;
 import com.ktb.community.repository.PostRepository;
+import com.ktb.community.repository.UserRepository;
 import com.ktb.community.strategy.post.PostCreationStrategy;
+import com.ktb.community.strategy.resolver.PostCreationStrategyResolver;
 import com.ktb.community.util.cursor.CursorEncoder;
+import com.ktb.community.util.user.UserAuthenticationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,15 +28,17 @@ import java.util.Map;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final ImageService imageService;
+    private final UserRepository userRepository;
     private final PostMapper postMapper;
-    private final Map<String, PostCreationStrategy> postCreationStrategies;
+    private final PostCreationStrategyResolver postCreationStrategyResolver;
+    private final UserAuthenticationUtils userAuthenticationUtils;
 
-    public CreatePostResponseDto createPost(User user, PostRequestDto postRequestDto) {
 
-        PostCreationStrategy postCreationStrategy = postCreationStrategies.get(
-                determineStrategy(user, postRequestDto.getPostType())
-        );
+    public CreatePostResponseDto createPost(PostRequestDto postRequestDto) {
+
+        User user = userAuthenticationUtils.getCurrentUser();
+        PostCreationStrategy postCreationStrategy = postCreationStrategyResolver
+                .getStrategy(postRequestDto.getPostType());
 
         String title = postRequestDto.getTitle();
         String content = postRequestDto.getContent();
@@ -54,9 +60,12 @@ public class PostService {
 
     public PostInfoDto getPost(Long postId) {
 
-        Post post = postRepository.findById(postId);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new GeneralException(Code.POST_NOT_FOUND));
+        User user = userRepository.findById(post.getUser().getId())
+                .orElseThrow(() -> new GeneralException(Code.USER_NOT_FOUND));
 
-        return postMapper.mapToPostInfoDto(post);
+        return postMapper.mapToPostInfoDto(post, user);
     }
 
     public GetPostListResponseDto getPostList(LocalDateTime cursor, int limit) {
@@ -64,16 +73,28 @@ public class PostService {
         List<Post> posts = postRepository.findAllByCreatedAt(cursor, limit);
 
         if (posts.isEmpty()) {
-            return GetPostListResponseDto.builder()
-                    .posts(Collections.emptyList())
-                    .hasNext(false)
-                    .build();
+            return postMapper.mapToGetPostListResponseDto(
+                    null,
+                    Collections.emptyList(),
+                    null,
+                    false
+                    );
         }
+
+        List<Long> userIdList = posts.stream()
+                .map(post -> post.getUser().getId())
+                .distinct()
+                .toList();
+
+        Map<Long, User> userMap = userRepository.findAllById(userIdList)
+                .stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
 
         LocalDateTime nextCursorTime = posts.getLast().getCreatedAt();
         boolean hasNext = postRepository.hasNext(nextCursorTime);
 
         return postMapper.mapToGetPostListResponseDto(
+                userMap,
                 posts,
                 hasNext ? CursorEncoder.encode(nextCursorTime) : null,
                 hasNext
@@ -83,7 +104,10 @@ public class PostService {
 
     public PostInfoDto updatePost(Long postId, PostRequestDto postRequestDto) {
 
-        Post post = postRepository.findById(postId);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new GeneralException(Code.POST_NOT_FOUND));
+        User user = userRepository.findById(post.getUser().getId())
+                .orElseThrow(() -> new GeneralException(Code.USER_NOT_FOUND));
 
         String title = postRequestDto.getTitle();
         String content = postRequestDto.getContent();
@@ -93,45 +117,15 @@ public class PostService {
             postRepository.save(post.updatePost(title, content, postImageKey));
         }
 
-        return postMapper.mapToPostInfoDto(post);
+        return postMapper.mapToPostInfoDto(post, user);
 
-    }
-
-    public UpdatePostImageResponseDto updatePostImage(Long postId, UploadImageRequestDto uploadImageRequestDto) {
-
-        Post post = postRepository.findById(postId);
-
-        if (post.getPostImageKey() != null) {
-            imageService.deleteImage(post.getPostImageKey());
-        }
-
-        UploadImageResponseDto uploadImageResponseDto = imageService.generatePresignedUrl(uploadImageRequestDto);
-        String postImageUrl = uploadImageResponseDto.getS3UploadUrl();
-
-        postRepository.save(post.updatePostImage(postImageUrl));
-
-        return postMapper.mapToUpdatePostImageResponseDto(postId, postImageUrl, post);
-    }
-
-    public void deletePostImage(Long postId) {
-
-        Post post = postRepository.findById(postId);
-
-        if (post.getPostImageKey() != null) {
-            imageService.deleteImage(post.getPostImageKey());
-        }
-
-        postRepository.save(post.deletePostImage());
     }
 
     public void deletePost(Long postId) {
-        postRepository.delete(postId);
-    }
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new GeneralException(Code.POST_NOT_FOUND));
 
-    private String determineStrategy(User user, PostType postType) {
-        // 관리자는 공지글만 쓸 수 있게 할 것이므로
-        if (user.getRole().equals(Role.ADMIN) && postType.equals(PostType.NOTICE)) return "noticePostCreationStrategy";
-        return "basicPostCreationStrategy";
+        postRepository.delete(post);
     }
 
 }

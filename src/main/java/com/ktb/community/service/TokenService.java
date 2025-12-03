@@ -2,23 +2,22 @@ package com.ktb.community.service;
 
 import com.ktb.community.common.enums.Code;
 import com.ktb.community.common.exception.GeneralException;
+import com.ktb.community.domain.Token;
+import com.ktb.community.domain.User;
+import com.ktb.community.domain.enums.Role;
 import com.ktb.community.dto.TokenRefreshRequestDto;
 import com.ktb.community.dto.TokenRefreshResponseDto;
+import com.ktb.community.dto.TokenResponseDto;
 import com.ktb.community.mapper.TokenMapper;
 import com.ktb.community.repository.TokenRepository;
 import com.ktb.community.repository.UserRepository;
+import com.ktb.community.security.util.JwtUtil;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.util.Date;
 
 
 @Service
@@ -26,75 +25,64 @@ import java.util.Date;
 @Transactional
 public class TokenService {
 
-    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
     private final TokenMapper tokenMapper;
-    @Value("${jwt.secret}")
-    private String secretKey;
-
     private final TokenRepository tokenRepository;
+    private final UserRepository userRepository;
 
-    public String createAccessToken(Long userId) {
-        Date now = new Date();
-        // 15분
-        long accessTokenValidity = 1000 * 60 * 15;
-        return Jwts.builder()
-                .setSubject(userId.toString())
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + accessTokenValidity))
-                .signWith(getKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
+    public TokenResponseDto createTokens(User user, HttpServletResponse response) {
+        String email = user.getEmail();
+        Role role = user.getRole();
+        String accessToken = jwtUtil.createAccessToken(email, role);
+        String refreshToken = jwtUtil.createRefreshToken(email);
+        addRefreshTokenCookie(response, refreshToken);
 
-    public String createRefreshToken(Long userId) {
-        Date now = new Date();
-        // 7일
-        long refreshTokenValidity = 1000L * 60 * 60 * 24 * 7;
-        String refreshToken = Jwts.builder()
-                .setSubject(userId.toString())
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + refreshTokenValidity))
-                .signWith(getKey(), SignatureAlgorithm.HS256)
-                .compact();
-        tokenRepository.save(userId, refreshToken);
-        return refreshToken;
+        tokenRepository.save(
+                Token.createToken(user, accessToken, refreshToken)
+        );
+
+        return TokenResponseDto.builder()
+                .accessToken(accessToken)
+                .build();
     }
 
     public TokenRefreshResponseDto refreshAccessTokenAndRefreshToken(TokenRefreshRequestDto tokenRefreshRequestDto) {
         String refreshToken = tokenRefreshRequestDto.getRefreshToken();
 
-        Claims claims = parseToken(refreshToken);
-        Long userId = Long.parseLong(claims.getSubject());
+        Claims claims = jwtUtil.parseClaims(refreshToken);
 
-        String savedRefreshToken = tokenRepository.find(userId);
-        if (!refreshToken.equals(savedRefreshToken)) {
+        String email = claims.getSubject();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new GeneralException(Code.USER_NOT_FOUND));
+
+        Token savedToken = tokenRepository.findByUserId(user.getId());
+
+        if (!refreshToken.equals(savedToken.getRefreshToken())) {
             throw new GeneralException(Code.INVALID_TOKEN);
         }
 
-        String newAccessToken = createAccessToken(userId);
-        String newRefreshToken = createRefreshToken(userId);
+        Role role = user.getRole();
 
-        tokenRepository.delete(userId);
+        String newAccessToken = jwtUtil.createAccessToken(email, role);
+        jwtUtil.createRefreshToken(email);
 
-        return tokenMapper.mapToTokenRefreshResponseDto(newAccessToken, newRefreshToken);
+        tokenRepository.delete(savedToken);
+
+        return tokenMapper.mapToTokenRefreshResponseDto(newAccessToken);
     }
 
-    public Claims parseToken(String refreshToken) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getKey())
-                .build()
-                .parseClaimsJws(refreshToken)
-                .getBody();
-    }
+    public void addRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
 
-    private Key getKey() {
-        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-    }
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")   // 또는 Lax
+                .path("/")            // 전체 경로에서 쿠키 전송
+                .maxAge(60 * 60 * 24 * 7) // 7일
+                .build();
 
-    public Long extractUserId(String token) {
-        Claims claims = parseToken(token);
-        return Long.parseLong(claims.getSubject());
+        response.setHeader("Set-Cookie", cookie.toString());
     }
-
 
 
 }

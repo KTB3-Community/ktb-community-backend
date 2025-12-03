@@ -1,11 +1,12 @@
 package com.ktb.community.repository;
 
+
+import com.ktb.community.domain.Token;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TokenRepository {
+public interface TokenRepository extends JpaRepository<Token, Long> {
 
-    void save(Long userId, String refreshToken);
-    String find(Long userId);
-    void delete(Long userId);
+    Token findByUserId(Long userId);
 }

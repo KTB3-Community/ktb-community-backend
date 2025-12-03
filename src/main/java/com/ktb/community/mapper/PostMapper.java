@@ -1,19 +1,18 @@
 package com.ktb.community.mapper;
 
 import com.ktb.community.domain.Post;
+import com.ktb.community.domain.PostImage;
 import com.ktb.community.domain.User;
 import com.ktb.community.dto.*;
-import com.ktb.community.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class PostMapper {
-
-    private final UserRepository userRepository;
 
     public CreatePostResponseDto mapToCreatePostResponseDto(Post post, UserInfoDto userInfoDto) {
         return CreatePostResponseDto.builder()
@@ -28,20 +27,13 @@ public class PostMapper {
     }
 
 
-    public PostInfoDto mapToPostInfoDto(Post post) {
-
-        User user = userRepository.findById(post.getUserId());
-
+    public PostInfoDto mapToPostInfoDto(Post post, User user) {
         return PostInfoDto.builder()
                 .postId(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .postImageKey(post.getPostImageKey())
-                .writer(UserInfoDto.builder()
-                        .userId(user.getId())
-                        .nickname(user.getNickname())
-                        .profileImageKey(user.getProfileImageKey())
-                        .build())
+                .writer(UserInfoDto.from(user))
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
                 .viewCount(post.getViewCount())
@@ -50,9 +42,12 @@ public class PostMapper {
                 .build();
     }
 
-    public GetPostListResponseDto mapToGetPostListResponseDto(List<Post> posts, String nextCursor, boolean hasNext) {
+    public GetPostListResponseDto mapToGetPostListResponseDto(Map<Long, User> userMap, List<Post> posts, String nextCursor, boolean hasNext) {
         List<PostInfoDto> postInfoDtoList = posts.stream()
-                .map(this::mapToPostInfoDto)
+                .map(post -> {
+                    User user = userMap.get(post.getUser().getId());
+                    return mapToPostInfoDto(post, user);
+                })
                 .toList();
 
         return GetPostListResponseDto.builder()
@@ -62,12 +57,12 @@ public class PostMapper {
                 .build();
     }
 
-    public UpdatePostImageResponseDto mapToUpdatePostImageResponseDto(Long postId, String postImageUrl, Post post) {
+    public UpdatePostImageResponseDto mapToUpdatePostImageResponseDto(Long postId, String postImageUrl, PostImage postImage) {
         return UpdatePostImageResponseDto.builder()
                 .postId(postId)
                 .postImageUrl(postImageUrl)
-                .createdAt(post.getCreatedAt())
-                .updatedAt(post.getUpdatedAt())
+                .createdAt(postImage.getCreatedAt())
+                .updatedAt(postImage.getUpdatedAt())
                 .build();
     }
 }

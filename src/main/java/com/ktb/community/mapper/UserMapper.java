@@ -21,19 +21,20 @@ public class UserMapper {
                 .build();
     }
 
-    public UpdateUserInfoResponseDto mapToUpdateUserInfoResponseDto(Long userId, User user, String profileImageUrl) {
+    public UpdateUserInfoResponseDto mapToUpdateUserInfoResponseDto(Long userId, User user, String presignedProfileUrl) {
+        System.out.println(presignedProfileUrl);
         return UpdateUserInfoResponseDto.builder()
                 .userId(userId)
                 .nickname(user.getNickname())
-                .profileImageUrl(profileImageUrl)
+                .presignedProfileUrl(presignedProfileUrl)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
 
-    public UpdateUserImageResponseDto mapToUpdateUserImageResponseDto(User user, String profileImageUrl) {
+    public UpdateUserImageResponseDto mapToUpdateUserImageResponseDto(User user, String presignedProfileImageUrl) {
         return UpdateUserImageResponseDto.builder()
-                .profileImageUrl(profileImageUrl)
+                .presignedProfileImageUrl(presignedProfileImageUrl)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

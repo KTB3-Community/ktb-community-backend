@@ -13,8 +13,7 @@ public class LoginResponseDto {
     private Long userId;
     private String nickname;
     private String profileImageUrl;
-    private String accessToken;
-    private String refreshToken;
+    private TokenResponseDto tokenResponseDto;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private LocalDateTime createdAt;

@@ -10,9 +10,9 @@ import java.net.URL;
 @RequiredArgsConstructor
 public class ImageMapper {
 
-    public UploadImageResponseDto mapToUploadImageResponseDto(URL s3UploadUrl, String key) {
+    public UploadImageResponseDto mapToUploadImageResponseDto(URL presignedImageUrl, String key) {
         return UploadImageResponseDto.builder()
-                .s3UploadUrl(s3UploadUrl.toString())
+                .presignedImageUrl(presignedImageUrl.toString())
                 .imageKey(key)
                 .build();
     }

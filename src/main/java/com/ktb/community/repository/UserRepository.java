@@ -1,13 +1,14 @@
 package com.ktb.community.repository;
 
 import com.ktb.community.domain.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface UserRepository {
+import java.util.Optional;
 
-    User save(User user);
-    User findById(Long userId);
-    User findByEmail(String email);
-    void delete(Long userId);
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+
+    Optional<User> findByEmail(String email);
+    Optional<User> findByNickname(String nickname);
 }

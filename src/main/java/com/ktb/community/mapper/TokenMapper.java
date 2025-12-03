@@ -8,10 +8,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TokenMapper {
 
-    public TokenRefreshResponseDto mapToTokenRefreshResponseDto(String newAccessToken, String newRefreshToken) {
+    public TokenRefreshResponseDto mapToTokenRefreshResponseDto(String newAccessToken) {
         return TokenRefreshResponseDto.builder()
                 .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
                 .build();
     }
 }

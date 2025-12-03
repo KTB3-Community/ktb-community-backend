@@ -12,7 +12,7 @@ public class UpdateUserInfoResponseDto {
 
     private Long userId;
     private String nickname;
-    private String profileImageUrl;
+    private String presignedProfileUrl;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private LocalDateTime createdAt;

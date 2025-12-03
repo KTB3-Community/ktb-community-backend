@@ -24,6 +24,7 @@ public class User extends BaseTimeEntity {
     private String nickname;
     private String password;
     private String profileImageKey;
+    @Enumerated(EnumType.STRING)
     private Role role;
     private LocalDateTime deletedAt;
     private boolean isDeleted;
@@ -59,30 +60,10 @@ public class User extends BaseTimeEntity {
     }
 
     // email이 id 역할이라 변경 안되게 함
-    public User updateProfileInfo(String nickname) {
-        return this.toBuilder()
-                .nickname(nickname)
-                .build();
-    }
-
-    public User updatePassword(String password) {
-        return this.toBuilder()
-                .password(password)
-                .build();
-    }
-
-    public User updateProfileImage(String profileImageKey) {
-        return this.toBuilder()
-                .profileImageKey(profileImageKey)
-                .build();
-    }
-
-    public User deleteProfileImage() {
-        return this.toBuilder()
-                .profileImageKey(null)
-                .isDeleted(true)
-                .deletedAt(LocalDateTime.now())
-                .build();
+    public void updateProfileInfo(String nickname, String profileImageKey, String password) {
+        this.nickname = nickname;
+        this.profileImageKey = profileImageKey;
+        this.password = password;
     }
 
 }

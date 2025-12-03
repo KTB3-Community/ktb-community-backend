@@ -9,4 +9,5 @@ public class UploadImageRequestDto {
 
     private String fileName;
     private String contentType;
+
 }

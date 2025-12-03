@@ -9,6 +9,7 @@ public class GeneralException extends RuntimeException{
     private final Code code;
 
     public GeneralException(Code code) {
+        super(code.getMessage());
         this.code = code;
     }
 

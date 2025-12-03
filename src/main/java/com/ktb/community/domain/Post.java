@@ -25,6 +25,7 @@ public class Post extends BaseTimeEntity{
     private int likeCount;
     private int commentCount;
     private int viewCount;
+    @Enumerated(EnumType.STRING)
     private PostType postType;
     private LocalDateTime deletedAt;
     private boolean isDeleted;

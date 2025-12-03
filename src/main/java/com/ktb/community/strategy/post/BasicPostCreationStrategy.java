@@ -2,6 +2,7 @@ package com.ktb.community.strategy.post;
 
 import com.ktb.community.domain.Post;
 import com.ktb.community.domain.User;
+import com.ktb.community.domain.enums.PostType;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -10,8 +11,13 @@ import org.springframework.stereotype.Component;
 public class BasicPostCreationStrategy implements PostCreationStrategy{
 
     @Override
+    public PostType getPostType() {
+        return PostType.BASIC;
+    }
+
+    @Override
     public Post createPost(User user, String title, String content, String postImageKey) {
-        return Post.createPost(user.getId(), title, content, postImageKey);
+        return Post.createPost(user, title, content, postImageKey);
     }
 
 }

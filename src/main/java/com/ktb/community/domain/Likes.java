@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @DiscriminatorColumn(name = "dtype")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder(toBuilder = true)
-public abstract class Likes {
+public abstract class Likes extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
