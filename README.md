@@ -2,6 +2,7 @@
 
 ![Java](https://img.shields.io/badge/Java-17-red) ![Spring Boot](https://img.shields.io/badge/SpringBoot-3.0-green) ![MySQL](https://img.shields.io/badge/MySQL-8.0-blue) ![Spring Security](https://img.shields.io/badge/Spring_Security-6.0-6DB33F)
 
+> **롤토체스(TFT) 유저들을 위한 전적 조회 및 커뮤니티 플랫폼**
 
 <br/>
 
