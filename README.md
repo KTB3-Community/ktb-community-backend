@@ -22,7 +22,6 @@
 | **Language** | JavaScript (ES6+), HTML5, CSS3 |
 | **HTTP Client** | Fetch API (Native) |
 | **Build/Bundle** | Webpack (또는 Vite) |
-| **Deployment** | Vercel / Netlify / AWS S3 |
 
 <br/>
 
