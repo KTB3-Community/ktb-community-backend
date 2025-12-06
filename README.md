@@ -1,15 +1,8 @@
-# ♟️ [프로젝트 이름] - Frontend
+# TFT(롤토체스) 커뮤니티 서비스 - Frontend
 
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow) ![HTML5](https://img.shields.io/badge/HTML5-E34F26) ![CSS3](https://img.shields.io/badge/CSS3-1572B6)
 
 > **롤토체스(TFT) 유저들을 위한 전적 검색 및 커뮤니티 플랫폼**
->
-> 라이브러리 의존성을 최소화하고 웹 표준을 준수하기 위해 **Vanilla JS(순수 자바스크립트)**로 개발되었습니다.
-
-<br/>
-
-## 🔗 배포 링크
-👉 [서비스 바로가기 (Link)](https://your-deploy-url.com)
 
 <br/>
 
